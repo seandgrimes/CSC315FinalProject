@@ -24,8 +24,9 @@ public class CSC315FinalProject {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws FileNotFoundException, IOException, SQLException, ClassNotFoundException {
+        CSC315FinalProject program = new CSC315FinalProject(args[0]);
+        program.run();
     }
     
     public CSC315FinalProject(String inputFile)
@@ -59,7 +60,7 @@ public class CSC315FinalProject {
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         
         // Connect to the database. We'll just use Windows Security
-        final String url = "jdbc:sqlserver://localhost:1433;databaseName=FinalProject;integratedSecurity=true";
-        return DriverManager.getConnection(url);
+        final String url = "jdbc:sqlserver://SEAN-LAPTOP;databaseName=FinalProject;instanceName=SQLEXPRESS";
+        return DriverManager.getConnection(url, "finalproject", "finalproject");
     }
 }
