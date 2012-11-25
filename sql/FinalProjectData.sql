@@ -75,17 +75,55 @@ SELECT @Boeing = AirplaneId FROM Airplane WHERE [Identity] = 'Boeing';
 SELECT @Airbus = AirplaneId FROM Airplane WHERE [Identity] = 'Airbus';
 
 INSERT INTO Flight (FlightNumber, DepartureAirportCode, ArrivalAirportCode, AirplaneId, CarrierName,
-	Date, Fare, DepartureTime, ArrivalTime) VALUES ('SW-12345', 'KDFW', 'KLAX', @Airbus, @Southwest,
-	'12/31/2006', 400, '12:00PM' ,'3:00PM');
+	Date, EconomyFare, BusinessFare, DepartureTime, ArrivalTime) VALUES ('SW-12345', 'KDFW', 'KLAX', @Airbus, @Southwest,
+	'12/31/2006', 299, 1200, '12:00PM' ,'3:00PM');
 	
 INSERT INTO Flight (FlightNumber, DepartureAirportCode, ArrivalAirportCode, AirplaneId, CarrierName,
-	Date, Fare, DepartureTime, ArrivalTime) VALUES ('AA-12345', 'KDFW', 'KLAX', @Boeing, @American,
-	'12/31/2006', 400, '8:00AM' ,'11:00AM');
+	Date, EconomyFare, BusinessFare, DepartureTime, ArrivalTime) VALUES ('AA-12345', 'KDFW', 'KLAX', @Boeing, @American,
+	'12/31/2006', 325, 1200, '8:00AM' ,'11:00AM');
 
 INSERT INTO Flight (FlightNumber, DepartureAirportCode, ArrivalAirportCode, AirplaneId, CarrierName,
-	Date, Fare, DepartureTime, ArrivalTime) VALUES ('DA-12345', 'KDFW', 'KLAX', @Boeing, @Delta,
-	'12/31/2006', 400, '3:00PM' ,'6:00PM');
+	Date, EconomyFare, BusinessFare, DepartureTime, ArrivalTime) VALUES ('DA-12345', 'KDFW', 'KLAX', @Boeing, @Delta,
+	'12/31/2006', 600, 1500, '3:00PM' ,'6:00PM');
 	
 INSERT INTO Flight (FlightNumber, DepartureAirportCode, ArrivalAirportCode, AirplaneId, CarrierName,
-	Date, Fare, DepartureTime, ArrivalTime) VALUES ('DA-23456', 'KDFW', 'KLAX', @Boeing, @Delta,
-	'12/31/2006', 400, '7:00PM' ,'10:00PM');
+	Date, EconomyFare, BusinessFare, DepartureTime, ArrivalTime) VALUES ('DA-23456', 'KDFW', 'KLAX', @Boeing, @Delta,
+	'12/31/2006', 900, 1700, '7:00PM' ,'10:00PM');
+
+-- Create Customer
+INSERT INTO Customer (Name, PhoneNumber, City, State, Country) VALUES ('Sean Grimes', '318-222-2222', 'Shreveport',
+	'LA', 'United States');
+	
+DECLARE @CustomerID INT;
+SET @CustomerID = SCOPE_IDENTITY();
+
+-- Create Payment Method
+INSERT INTO PaymentMethod (AccountNumber, CustomerId, PaymentTypeId, IsPreferred)
+	VALUES ('12345', @CustomerID, 1, '1');
+
+DECLARE @PaymentMethodID INT;
+SET @PaymentMethodID = SCOPE_IDENTITY();
+
+-- Create Reservations
+DECLARE @StatusID INT;
+SELECT @StatusID = Id FROM ReservationStatus WHERE Name = 'OK';
+
+DECLARE @AgentID INT;
+SELECT @AgentID = Id FROM Agent WHERE FirstName = 'Sean' AND LastName = 'Grimes';
+
+DECLARE @ReservationId INT;
+DECLARE @ReservationCounter INT;
+SET @ReservationCounter = 0;
+
+WHILE @ReservationCounter < 100 
+BEGIN
+	SET @ReservationCounter = @ReservationCounter + 1;
+	
+	INSERT INTO Reservation (CustomerId, AgentId, ReservationStatusId, PaymentMethodId) 
+	VALUES (@CustomerID, @AgentID, @StatusID, @PaymentMethodID);
+
+	SET @ReservationId = SCOPE_IDENTITY();
+	
+	INSERT INTO Flight_Reservation (ReservationId, FlightNumber, ReservationStatusId) 
+		VALUES (@ReservationId, 'SW-12345', @StatusID);
+END;

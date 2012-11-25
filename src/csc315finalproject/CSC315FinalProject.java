@@ -160,7 +160,7 @@ public class CSC315FinalProject {
         // Create our SQL Query
         String sql = 
                   "SELECT arprt.Name AS AirportName, carrier.Name AS CarrierName, COUNT(carrier.Name) AS FlightCount, "
-                + "     AVG(fl.Fare) AS AvgEconomyFare "
+                + "     AVG(fl.EconomyFare) AS AvgEconomyFare "
                 + "FROM Airport arprt "
                 + "INNER JOIN Flight fl ON (arprt.InternationalCode = fl.DepartureAirportCode) "
                 + "INNER JOIN Carrier carrier ON (fl.CarrierName = carrier.Name) " 
