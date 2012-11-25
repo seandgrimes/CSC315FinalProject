@@ -56,6 +56,9 @@ public class CSC315FinalProject {
         printFlightsFromDallasToLosAngelesOnNewYearsEve();
         System.out.print("\n\n");
         
+        printAirportAirlineDepartureCountLeavingDallasOnNewYearsEve();
+        System.out.println("\n\n");
+        
         printAirportAirlineDepartureCount();
         System.out.print("\n\n");
     }
@@ -113,6 +116,38 @@ public class CSC315FinalProject {
             Time departureTime = results.getTime("DepartureTime");
             Time arrivalTime = results.getTime("ArrivalTime");
             System.out.format("%s\t%s\t%s\n", flightNumber, departureTime, arrivalTime);
+        }
+        
+        // Cleanup resources
+        results.close();
+        stmt.close();
+        conn.close();
+    }
+    
+    private void printAirportAirlineDepartureCountLeavingDallasOnNewYearsEve() throws SQLException, ClassNotFoundException {
+        // Create our SQL Query
+        String sql = 
+                  "SELECT arprt.Name AS AirportName, carrier.Name AS CarrierName, COUNT(carrier.Name) AS FlightCount "
+                + "FROM Airport arprt "
+                + "INNER JOIN Flight fl ON (arprt.InternationalCode = fl.DepartureAirportCode) "
+                + "INNER JOIN Carrier carrier ON (fl.CarrierName = carrier.Name) "
+                + "WHERE fl.DepartureAirportCode = 'KDFW' AND Date = '12/31/2006' " 
+                + "GROUP BY arprt.Name, carrier.Name;";
+        
+        // Execute our SQL query
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet results = stmt.executeQuery();
+        
+        // Display the results
+        System.out.println("Airlines departing KDFW on New Years Eve, with flight count for each airline");
+        System.out.println("---------------------------------------------------------------------------------");
+        System.out.println("Airport\t\t\t\t\t\t\tAirline\t\t\tFlight Count");
+        while (results.next()) {
+            String airport = results.getString("AirportName");
+            String carrier = results.getString("CarrierName");
+            int flightCount = results.getInt("FlightCount");
+            System.out.format("%s\t\t\t%s\t\t%s\n", airport, carrier, flightCount);
         }
         
         // Cleanup resources
