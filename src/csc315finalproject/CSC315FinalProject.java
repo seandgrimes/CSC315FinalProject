@@ -60,6 +60,9 @@ public class CSC315FinalProject {
         
         printAirportAirlineDepartureCount();
         System.out.print("\n\n");
+        
+        printFlightsFromDallasWithAtLeastOneSeatAvailable();
+        System.out.print("\n\n");
     }
     
     /////////////////////////////
@@ -181,6 +184,33 @@ public class CSC315FinalProject {
             int flightCount = results.getInt("FlightCount");
             double avgEconomyFare = results.getDouble("AvgEconomyFare");
             System.out.format("%s\t\t\t%s\t\t%s\t\t%s\n", airport, carrier, flightCount, avgEconomyFare);
+        }
+        
+        // Cleanup resources
+        results.close();
+        stmt.close();
+        conn.close();
+    }
+    
+    private void printFlightsFromDallasWithAtLeastOneSeatAvailable() throws SQLException, ClassNotFoundException {
+        String sql = 
+                "SELECT fl.FlightNumber FROM Flight fl " 
+                + "INNER JOIN Airplane arpl ON fl.AirplaneId = arpl.AirplaneID " 
+                + "WHERE fl.DepartureAirportCode = 'KDFW' AND " 
+                + "(SELECT COUNT(ReservationId) FROM Flight_Reservation WHERE FlightNumber = fl.FlightNumber) "
+                + "< (arpl.BusinessCapacity + arpl.EconomyCapacity) AND fl.EconomyFare < 500 "
+                + "ORDER BY fl.Date, fl.DepartureTime;";
+        
+        // Execute our SQL query
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet results = stmt.executeQuery();
+        
+        // Display the results
+        System.out.println("Flights from Dallas With At Least One Seat Available and Economy Fares Less than $500");
+        System.out.println("-------------------------------------------------------------------------------------");
+        while (results.next()) {
+            System.out.println(results.getString("FlightNumber"));
         }
         
         // Cleanup resources
