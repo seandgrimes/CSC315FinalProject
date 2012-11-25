@@ -55,6 +55,9 @@ public class CSC315FinalProject {
         
         printFlightsFromDallasToLosAngelesOnNewYearsEve();
         System.out.print("\n\n");
+        
+        printAirportAirlineDepartureCount();
+        System.out.print("\n\n");
     }
     
     /////////////////////////////
@@ -111,7 +114,44 @@ public class CSC315FinalProject {
             Time arrivalTime = results.getTime("ArrivalTime");
             System.out.format("%s\t%s\t%s\n", flightNumber, departureTime, arrivalTime);
         }
-       
+        
+        // Cleanup resources
+        results.close();
+        stmt.close();
+        conn.close();
+    }
+    
+    private void printAirportAirlineDepartureCount() throws SQLException, ClassNotFoundException {
+        // Create our SQL Query
+        String sql = 
+                  "SELECT arprt.Name AS AirportName, carrier.Name AS CarrierName, COUNT(carrier.Name) AS FlightCount, "
+                + "     AVG(fl.Fare) AS AvgEconomyFare "
+                + "FROM Airport arprt "
+                + "INNER JOIN Flight fl ON (arprt.InternationalCode = fl.DepartureAirportCode) "
+                + "INNER JOIN Carrier carrier ON (fl.CarrierName = carrier.Name) " 
+                + "GROUP BY arprt.Name, carrier.Name;";
+        
+        // Execute our SQL query
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet results = stmt.executeQuery();
+        
+        // Display the results
+        System.out.println("Airlines departing each airport, with flight count and average economy fair count");
+        System.out.println("---------------------------------------------------------------------------------");
+        System.out.println("Airport\t\t\t\t\t\t\tAirline\t\t\tFlight Count\tAvg Economy Fare");
+        while (results.next()) {
+            String airport = results.getString("AirportName");
+            String carrier = results.getString("CarrierName");
+            int flightCount = results.getInt("FlightCount");
+            double avgEconomyFare = results.getDouble("AvgEconomyFare");
+            System.out.format("%s\t\t\t%s\t\t%s\t\t%s\n", airport, carrier, flightCount, avgEconomyFare);
+        }
+        
+        // Cleanup resources
+        results.close();
+        stmt.close();
+        conn.close();
     }
     
     private void createDatabase() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException {
