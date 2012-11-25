@@ -65,6 +65,7 @@ public class CSC315FinalProject {
     /////////////////////////////
     // QUERIES 
     /////////////////////////////
+    
     private void printFlights() throws SQLException, ClassNotFoundException {
         // Create our SQL query
         String sql = 
@@ -187,6 +188,10 @@ public class CSC315FinalProject {
         stmt.close();
         conn.close();
     }
+    
+    /////////////////////////////
+    // DATABASE UTILITY METHODS
+    /////////////////////////////
     
     private void createDatabase() throws FileNotFoundException, IOException, SQLException, ClassNotFoundException {
         executeSqlFile(schemaFile);
