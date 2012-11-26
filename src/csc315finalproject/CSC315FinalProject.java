@@ -63,6 +63,9 @@ public class CSC315FinalProject {
         
         printFlightsFromDallasWithAtLeastOneSeatAvailable();
         System.out.print("\n\n");
+        
+        printFlightsFromDallasWithAtLeastOneSeatPlusCount();
+        System.out.print("\n\n");
     }
     
     /////////////////////////////
@@ -196,7 +199,7 @@ public class CSC315FinalProject {
         String sql = 
                 "SELECT fl.FlightNumber FROM Flight fl " 
                 + "INNER JOIN Airplane arpl ON fl.AirplaneId = arpl.AirplaneID " 
-                + "WHERE fl.DepartureAirportCode = 'KDFW' AND " 
+                + "WHERE fl.DepartureAirportCode = 'KDFW' AND fl.ArrivalAirportCode = 'KLAX' AND " 
                 + "(SELECT COUNT(ReservationId) FROM Flight_Reservation WHERE FlightNumber = fl.FlightNumber) "
                 + "< (arpl.BusinessCapacity + arpl.EconomyCapacity) AND fl.EconomyFare < 500 "
                 + "ORDER BY fl.Date, fl.DepartureTime;";
@@ -207,10 +210,43 @@ public class CSC315FinalProject {
         ResultSet results = stmt.executeQuery();
         
         // Display the results
-        System.out.println("Flights from Dallas With At Least One Seat Available and Economy Fares Less than $500");
+        System.out.println("Flights from Dallas to LAX With At Least One Seat Available and Economy Fares Less than $500");
         System.out.println("-------------------------------------------------------------------------------------");
         while (results.next()) {
             System.out.println(results.getString("FlightNumber"));
+        }
+        
+        // Cleanup resources
+        results.close();
+        stmt.close();
+        conn.close();
+    }
+    
+    private void printFlightsFromDallasWithAtLeastOneSeatPlusCount() throws SQLException, ClassNotFoundException {
+        String sql = 
+                "SELECT DISTINCT fl.FlightNumber, " +
+                "   (arpl.BusinessCapacity + arpl.EconomyCapacity) - COUNT(fr.FlightNumber) AS AvailableSeats " +
+                "FROM Flight fl " +
+                "LEFT JOIN Flight_Reservation fr ON (fl.FlightNumber = fr.FlightNumber) " +
+                "INNER JOIN Airplane arpl ON fl.AirplaneId = arpl.AirplaneID " + 
+                "WHERE fl.DepartureAirportCode = 'KDFW' AND fl.ArrivalAirportCode = 'KLAX' " + 
+                "GROUP BY fl.FlightNumber, fr.FlightNumber, arpl.BusinessCapacity, arpl.EconomyCapacity " +
+                "HAVING COUNT(fr.FlightNumber) < (arpl.BusinessCapacity + arpl.EconomyCapacity) " +
+                "ORDER BY AvailableSeats ASC";
+        
+        // Execute our SQL query
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet results = stmt.executeQuery();
+        
+        // Display the results
+        System.out.println("Flights from Dallas to LAX with at least one seat available");
+        System.out.println("-----------------------------------------------------------");
+        System.out.println("Flight Number\tAvailable Seats");
+        while (results.next()) {
+            String flightNumber = results.getString("FlightNumber");
+            int availableSeats = results.getInt("AvailableSeats");
+            System.out.format("%s\t%s\n", flightNumber, availableSeats);
         }
         
         // Cleanup resources
