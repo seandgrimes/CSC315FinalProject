@@ -3,6 +3,11 @@ BEGIN
 	DROP TABLE Flight_Reservation;
 END;
 
+IF OBJECT_ID('dbo.ReservationPreference') IS NOT NULL
+BEGIN
+	DROP TABLE ReservationPreference;
+END;
+
 IF OBJECT_ID('dbo.Reservation') IS NOT NULL
 BEGIN
 	DROP TABLE Reservation;
@@ -27,11 +32,6 @@ IF OBJECT_ID('dbo.Customer') IS NOT NULL
 BEGIN
 	DROP TABLE Customer;
 END; 
-
-IF OBJECT_ID('dbo.ReservationPreference') IS NOT NULL
-BEGIN
-	DROP TABLE ReservationPreference;
-END;
 
 IF OBJECT_ID('dbo.Preference') IS NOT NULL
 BEGIN
@@ -121,14 +121,6 @@ CREATE TABLE Preference
 	Name VARCHAR(45) NOT NULL UNIQUE
 );
 
-CREATE TABLE ReservationPreference
-(
-	Id INT IDENTITY NOT NULL PRIMARY KEY,
-	PreferenceId INT NOT NULL,
-	Value VARCHAR(45) NOT NULL
-	FOREIGN KEY (PreferenceId) REFERENCES Preference (Id)
-);
-
 CREATE TABLE Customer
 (
 	Id INT IDENTITY PRIMARY KEY,
@@ -171,6 +163,7 @@ CREATE TABLE Flight
 	ArrivalTime TIME NOT NULL,
 	FOREIGN KEY (DepartureAirportCode) REFERENCES Airport(InternationalCode),
 	FOREIGN KEY (ArrivalAirportCode) REFERENCES Airport(InternationalCode),
+	FOREIGN KEY (AirplaneId) REFERENCES Airplane(AirplaneId),
 	FOREIGN KEY (CarrierName) REFERENCES Carrier(Name)
 );
 
@@ -186,6 +179,16 @@ CREATE TABLE Reservation
 	FOREIGN KEY (AgentId) REFERENCES Agent (Id),
 	FOREIGN KEY (ReservationStatusId) REFERENCES ReservationStatus(Id),
 	FOREIGN KEY (PaymentMethodId) REFERENCES PaymentMethod(Id)
+);
+
+CREATE TABLE ReservationPreference
+(
+	Id INT IDENTITY NOT NULL PRIMARY KEY,
+	PreferenceId INT NOT NULL,
+	ReservationId INT NOT NULL,
+	Value VARCHAR(45) NOT NULL
+	FOREIGN KEY (PreferenceId) REFERENCES Preference (Id),
+	FOREIGN KEY (ReservationId) REFERENCES Reservation(Id)
 );
 
 CREATE TABLE Flight_Reservation
