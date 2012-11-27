@@ -91,8 +91,8 @@ INSERT INTO Flight (FlightNumber, DepartureAirportCode, ArrivalAirportCode, Airp
 	'12/31/2006', 900, 1700, '7:00PM' ,'10:00PM');
 
 -- Create Customer
-INSERT INTO Customer (Name, PhoneNumber, City, State, Country) VALUES ('Sean Grimes', '318-222-2222', 'Shreveport',
-	'LA', 'United States');
+INSERT INTO Customer (Name, PhoneNumber, City, State, Country, Address) VALUES ('Sean Grimes', '318-222-2222', 'Shreveport',
+	'LA', 'United States', '123 Test Lane');
 	
 DECLARE @CustomerID INT;
 SET @CustomerID = SCOPE_IDENTITY();
