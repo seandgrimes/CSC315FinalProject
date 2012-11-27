@@ -1,0 +1,1 @@
+java -cp .;lib\sqljdbc4.jar;build\classes;. csc315finalproject.CSC315FinalProject sql\FinalProjectSchema.sql sql\FinalProjectData.sql
